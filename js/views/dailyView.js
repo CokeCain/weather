@@ -1,7 +1,6 @@
 import View from './View.js';
 import * as config from '../config.js';
 import * as helpers from '../helpers.js';
-import dailyViewMarkup from './dailyViewMarkup.js';
 
 class DailyView extends View {
   _parentElement = config.sevenWeatherDiv;
