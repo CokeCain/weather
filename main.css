@@ -432,6 +432,13 @@ label .label-text:before {
     width: 300px;
     padding: 1rem !important;
   }
+  .welcome {
+    padding: 0 15px;
+  }
+  .location i {
+    margin-left: 10px;
+    float: none !important;
+  }
 }
 
 .overlay {
@@ -1476,6 +1483,7 @@ label .label-text:before {
 }
 #uvi-graph {
   margin-bottom: 20px;
+  width: 100%;
 }
 
 #humidity-bar {
