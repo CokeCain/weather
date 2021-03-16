@@ -62,7 +62,7 @@ export async function getWeatherData(latitude, longitude) {
 
 async function getAirQualityIndex(lat, lon) {
   try {
-    const data = await fetch(`http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${config.appid}`);
+    const data = await fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${config.appid}`);
     let json = await data.json();
     return json.list[0].main.aqi;
   } catch (err) {
