@@ -1,4 +1,4 @@
-import View from './View.js';
+import View from './view.js';
 import * as config from '../config.js';
 import * as helpers from '../helpers.js';
 
