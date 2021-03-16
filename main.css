@@ -373,6 +373,17 @@ label .label-text:before {
   .highlight-card {
     width: 0px;
   }
+  body {
+    padding: 0;
+  }
+  .weather {
+    width: 100%;
+    height: 100%;
+  }
+  .today,
+  .highlights {
+    padding: 20px;
+  }
 }
 .highlight-card {
   width: 150px;
@@ -389,6 +400,9 @@ label .label-text:before {
   .highlights {
     width: 100%;
     display: block;
+  }
+  .search_group {
+    width: 200px;
   }
 
   .inner {
@@ -408,6 +422,15 @@ label .label-text:before {
 
   .category {
     padding: 20px;
+  }
+
+  .information-modal {
+    width: 300px;
+  }
+  .search-modal,
+  .favorite-modal {
+    width: 300px;
+    padding: 1rem !important;
   }
 }
 
