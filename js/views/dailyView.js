@@ -22,7 +22,7 @@ class DailyView extends View {
          
     <div class="row row-3">
     <img class="pop-icon" src="img/rain-icon.png">
-    <p class="pop">${cur.pop * 100}%</p>
+    <p class="pop">${Math.round(cur.pop * 100)}%</p>
     </div>
     
     <div class="row row-4">
