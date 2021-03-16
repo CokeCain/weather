@@ -1,0 +1,3 @@
+CB Weather
+
+Weather app made with JavaScript using MCV architecture, async-await API fetching, publisher-subscriber pattern...
