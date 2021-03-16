@@ -125,7 +125,6 @@ button {
 }
 
 .left-bar {
-  display: none;
   background-color: var(--bg-color);
   width: 180px;
   border-right: 1px solid #e3e7f7;
