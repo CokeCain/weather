@@ -1,0 +1,220 @@
+"use strict";
+
+var model = _interopRequireWildcard(require("./model.js"));
+
+var config = _interopRequireWildcard(require("./config.js"));
+
+var _currentView = _interopRequireDefault(require("./views/currentView.js"));
+
+var _highlightsView = _interopRequireDefault(require("./views/highlightsView.js"));
+
+var _hourlyView = _interopRequireDefault(require("./views/hourlyView.js"));
+
+var _dailyView = _interopRequireDefault(require("./views/dailyView.js"));
+
+var _uiView = _interopRequireDefault(require("./views/uiView.js"));
+
+var _alertView = _interopRequireDefault(require("./views/alertView.js"));
+
+var _searchView = _interopRequireDefault(require("./views/searchView.js"));
+
+var _favoritesVIew = _interopRequireDefault(require("./views/favoritesVIew.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+//_________________________________________________CONTROLLER
+const controller = async function (lat, lon) {
+  try {
+    await model.getCityCountryFlag(lat, lon);
+    await model.getWeatherData(lat, lon);
+
+    _currentView.default.render(model.state, true, model.state.favorite_codes.includes(model.state.location.code) ? true : false);
+
+    _uiView.default.showUI();
+
+    _hourlyView.default.render(model.state.weather, true);
+
+    _highlightsView.default.render(model.state.weather);
+
+    _highlightsView.default.animate();
+
+    _dailyView.default.render(model.state.weather, true);
+  } catch (err) {
+    console.error(`🧨  ${err}   🧨`);
+  }
+};
+
+function drawSearchCity(data) {
+  if (data.length === 0 || !data) {
+    config.searchResultsDiv.innerHTML = `<p>No cities matching your querry.</p><p>Please check for errors!</p>`;
+    return;
+  }
+
+  _searchView.default.render(data);
+}
+
+async function searchForCity(val) {
+  try {
+    const data = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${val}&limit=5&appid=${config.appid}`);
+    let json = await data.json();
+    drawSearchCity(json);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+const getBrowserGeo = function () {
+  _uiView.default.hideWelcome();
+
+  _uiView.default.loaderMessage('Getting location data...');
+
+  navigator.geolocation.getCurrentPosition(function (position) {
+    const {
+      latitude,
+      longitude
+    } = position.coords;
+    controller(latitude, longitude);
+  });
+}; //GEOLOCATION BUTTON
+
+/* config.geolocationButton.addEventListener('click', function () {
+  uiView.hideWelcome();
+  uiView.loaderMessage('Getting location data...');
+  getBrowserGeo();
+}); */
+//JUST SHOW SEARCH MODAL
+
+
+config.searchButton.addEventListener('click', function () {
+  _searchView.default.showModal();
+}); //CLICKING ON A SEARCH RESULT
+
+config.searchResultsDiv.addEventListener('click', function (e) {
+  const clicked = e.target.closest('.city-search-result');
+  if (!clicked) return;
+
+  _uiView.default.hideWelcome();
+
+  _uiView.default.loaderMessage('Getting weather data...');
+
+  _searchView.default.closeModal();
+
+  controller(clicked.dataset.lat, clicked.dataset.lon);
+}); //CLICKING ON ALERT BUTTON
+
+config.currentWeatherDiv.addEventListener('click', function (e) {
+  const clicked = e.target.closest('.alert');
+  if (!clicked) return;
+  if (!model.state.weather.current.alert) return;
+
+  _alertView.default.showModal(model.state.weather.current.alert[0], true);
+}); //CLOSE MODAL BUTTONS
+
+config.overlay.addEventListener('click', function (e) {
+  const clicked = e.target.closest('.close_modal');
+  if (!clicked) return;
+  if (clicked.classList.contains('close_modal-search')) _searchView.default.closeModal();
+  if (clicked.classList.contains('close_modal-alert')) _alertView.default.closeModal();
+  if (clicked.classList.contains('close_modal-favorite')) _favoritesVIew.default.closeModal();
+}); //JUST SHOW FAVORITE CITIES
+
+config.favoriteButton.addEventListener('click', function () {
+  _favoritesVIew.default.showModal(model.state.favorite_cities);
+}); //CLICKING ON THE FAVORITE CITY
+
+config.favoriteCitiesDiv.addEventListener('click', function (e) {
+  const clicked = e.target.closest('.favorite-city p');
+  if (!clicked) return;
+
+  _uiView.default.hideWelcome();
+
+  _uiView.default.loaderMessage('Getting location data...');
+
+  config.welcome.style.display = 'none';
+
+  _favoritesVIew.default.closeModal();
+
+  controller(clicked.dataset.lat, clicked.dataset.lon);
+});
+
+const init = function () {
+  _uiView.default.addHandlerGeolocation(getBrowserGeo);
+
+  _searchView.default.addHandlerEnterInSearch(searchForCity);
+
+  const storage = localStorage.getItem('favorite_cities');
+  const codes = localStorage.getItem('favorite_codes');
+
+  if (storage && codes) {
+    model.state.favorite_cities = JSON.parse(storage);
+    model.state.favorite_codes = JSON.parse(codes);
+  }
+};
+
+init(); //ADD TO FAVORITES in state.favorite_cities and state.favorite.codes
+
+config.currentWeatherDiv.addEventListener('click', function (e) {
+  const clicked = e.target.closest('.favorite');
+  if (!clicked) return;
+
+  if (model.state.favorite_codes.includes(model.state.location.code)) {
+    console.log('allready favorited, deleting');
+    let del = model.state.favorite_codes.indexOf(model.state.location.code);
+    model.state.favorite_cities.splice(del, 1);
+    model.state.favorite_codes.splice(del, 1);
+    localStorage.clear();
+  } else {
+    console.log('adding to favorites');
+    model.state.favorite_cities.push(model.state.location);
+    model.state.favorite_codes.push(model.state.location.code);
+    config.favoriteCitiesDiv.innerHTML = '';
+  }
+
+  toggleHeart();
+  addToBookmarks();
+
+  _favoritesVIew.default.render(model.state.favorite_cities);
+}); //ADD FAVORITE TO LOCAL STORAGE
+
+function addToBookmarks() {
+  localStorage.setItem('favorite_cities', JSON.stringify(model.state.favorite_cities));
+  localStorage.setItem('favorite_codes', JSON.stringify(model.state.favorite_codes));
+} //toggles heart icon when adding or removing favorites
+
+
+function toggleHeart() {
+  if (document.querySelector('.location i').classList.contains('far')) {
+    document.querySelector('.location i').classList.remove('far');
+    document.querySelector('.location i').classList.add('fas');
+    displayModal(`City added to favorites! 😁`);
+  } else if (document.querySelector('.location i').classList.contains('fas')) {
+    document.querySelector('.location i').classList.remove('fas');
+    document.querySelector('.location i').classList.add('far');
+    displayModal(`City removed from favorites. ☹`);
+  }
+}
+
+function displayModal(message) {
+  config.messageModal.innerHTML = `${message}`;
+  config.messageModal.style.display = 'block';
+  setInterval(function () {
+    config.messageModal.style.display = 'none';
+  }, 3000);
+}
+
+config.currentWeatherDiv.addEventListener('click', function (e) {
+  const clicked = e.target.closest('.next-btn');
+  if (!clicked) return;
+
+  _hourlyView.default.slideRight();
+});
+config.currentWeatherDiv.addEventListener('click', function (e) {
+  const clicked = e.target.closest('.previous-btn');
+  if (!clicked) return;
+
+  _hourlyView.default.slideLeft();
+});

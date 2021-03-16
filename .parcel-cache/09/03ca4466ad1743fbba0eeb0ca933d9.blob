@@ -1,0 +1,92 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _View = _interopRequireDefault(require("./View.js"));
+
+var _hourlyView = _interopRequireDefault(require("./hourlyView.js"));
+
+var config = _interopRequireWildcard(require("../config.js"));
+
+var helpers = _interopRequireWildcard(require("../helpers.js"));
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+class HighlightsView extends _View.default {
+  constructor(...args) {
+    super(...args);
+
+    _defineProperty(this, "_parentElement", config.weatherHighlights);
+
+    _defineProperty(this, "_bookmarked", void 0);
+  }
+
+  _generateMarkup() {
+    const setUnit = config.unit === 'metric' ? '°C' : '°F';
+    return `<div class="highlight-card">
+    <p class="card-title">UV Index</p>
+    <div id="uvi-graph"></div>
+    </div>
+    <div class="highlight-card">
+    <p class="card-title">Wind Status</p>
+    <p class="wind-speed"><span class="number">${this._data.current.windSpeed}</span> m/s</p>
+    <div class="wind-direction-flex">
+    <img class="wind-arr" src="img/wind-arr-cb.png" style="transform:rotate(${this._data.current.windDegrees}deg)">
+    <p class="wind-direction">Direction: ${this._data.current.windDirection}</p>
+    </div>
+    </div>
+    <div class="highlight-card">
+    <p class="card-title">Sunrise & Sunset</p>
+    <div class="sunrise-div">
+    <div class="sunny up"></div>
+    <i class="fas fa-sort-up"></i>
+    <p>${this._data.current.sunrise}</p>
+    </div>
+    <div class="sunset-div">
+    <i class="fas fa-sort-down"></i>
+    <div class="sunny up"></div>
+    <p>${this._data.current.sunset}</p>
+    </div>
+    </div>
+    <div class="highlight-card">
+    <p class="card-title">Humidity</p>
+    <div class="humidity-bar" id="humidity-bar"></div>
+    </div>
+    <div class="highlight-card">
+    <p class="card-title">Visibility</p>
+    <p class="visibility"><span class="number">${this._data.current.visibility / 1000}</span> km</p>
+    <p class="visibility-summary">${helpers.summarizeVisibility(this._data.current.visibility)}</p>
+    </div>
+    <div class="highlight-card">
+    <p class="card-title">Air Quality Index</p>
+    <p class="air-quality"><span class="number">${this._data.current.aqi}</span></p>
+    <p class="aqi-summary">${helpers.summarizeAqi(this._data.current.aqi)}</p>
+    </div>
+    `;
+  }
+
+  animate() {
+    helpers.animateUVIGraph(this._data.current.uvi / 10);
+    helpers.animateHumidityBar(this._data.current.humidity / 100);
+  }
+
+  hourlyMarkup() {
+    const setUnit = config.unit === 'metric' ? '°C' : '°F';
+    console.log(this._data.hourly[0].time);
+    return `${this._data.hourly.forEach(cur => cur.uvi)}`;
+  }
+
+}
+
+var _default = new HighlightsView();
+
+exports.default = _default;

@@ -1,0 +1,83 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _View = _interopRequireDefault(require("./View.js"));
+
+var config = _interopRequireWildcard(require("../config.js"));
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+class SearchView extends _View.default {
+  constructor(...args) {
+    super(...args);
+
+    _defineProperty(this, "_parentElement", config.searchResultsDiv);
+
+    _defineProperty(this, "_modal", config.searchModal);
+  }
+
+  _generateMarkup() {
+    return this._data.map(cur => this._markup(cur)).join('');
+  }
+
+  _markup(val) {
+    return `<div class="city-search-result" data-lat="${val.lat}" data-lon="${val.lon}">
+    <img style="width:30px;margin-right:10px;" src="https://www.countryflags.io/${val.country}/flat/32.png">
+    <p>${val.name}, ${val.country}</p>
+</div>`;
+  }
+
+  showModal() {
+    config.overlay.style.display = 'block'; //config.modal.style.display = 'block';
+
+    this._modal.style.display = 'block';
+    config.searchGroup.style.display = 'block';
+    config.inputSearch.focus();
+  }
+
+  closeModal() {
+    config.overlay.style.display = 'none'; //config.modal.style.display = 'none';
+
+    config.searchGroup.style.display = 'none';
+    config.inputSearch.value = '';
+    this._modal.style.display = 'none';
+
+    this._clear();
+  }
+
+  hideInputField() {
+    config.searchGroup.style.display = 'none';
+  }
+
+  message() {
+    let markup = `<p>No cities matching your querry.</p><p>Please check for errors!</p>`;
+
+    this._parentElement.insertAdjacentHTML('beforeend', markup);
+  } //ENTER ON SEARCH, CLEAR ALL WEATHER INFO AND START SEARCH---------------------------------------------------
+
+
+  addHandlerEnterInSearch(handler) {
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        let cityName = config.inputSearch.value;
+        if (!cityName) return;
+        handler(cityName);
+      }
+    });
+  }
+
+}
+
+var _default = new SearchView();
+
+exports.default = _default;

@@ -1,0 +1,19 @@
+.cls-1 {
+                fill: url(#linear-gradient);
+              }
+
+              .cls-2 {
+                fill: url(#radial-gradient);
+              }
+
+              .cls-3 {
+                fill: url(#radial-gradient-2);
+              }
+
+              .cls-4 {
+                fill: url(#linear-gradient-2);
+              }
+
+              .cls-5 {
+                fill: #333866;
+              }
